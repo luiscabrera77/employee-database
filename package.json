@@ -1,0 +1,30 @@
+{
+  "name": "employee-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luiscabrera77/employee-database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luiscabrera77/employee-database/issues"
+  },
+  "homepage": "https://github.com/luiscabrera77/employee-database#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "inquirer": "^8.0.0",
+    "mysql2": "^2.2.5"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}
