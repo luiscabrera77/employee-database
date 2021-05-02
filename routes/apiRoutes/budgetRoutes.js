@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db/connection');
-const inputCheck = require('../../utils/inputCheck');
 
 // Get budget grouped by department, showing count of employees
 router.get('/budget', (req, res) => {
