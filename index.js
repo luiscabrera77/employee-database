@@ -5,16 +5,19 @@ const mysql = require('mysql2');
 const util = require("util");
 const { table, log } = require("console");
 
-// Database Connection
-const db = require('./db/connection');
-
 // Files
 const questions = require("./lib/questions");
 const Questions = questions.Questions;
 
+// Database Connection
+const db = require('./db/connection');
+
+// SQL Queries
 const globalQueries = require("./lib/global");
-const departmentQueries = require("./lib/departments");
-//const employeeQueries = require("./lib/employee");
+const employeeQueries = require("./lib/employee");
+const departmentQueries = require("./lib/department");
+const roleQueries = require("./lib/role");
+const budgetQueries = require("./lib/budget");
 
 let error = "";
 
@@ -30,10 +33,10 @@ function start() {
     })
 }
 
+// Main Menu of the app (First question left outside of constructor classes to insert Separators)
 const mainMenu = {
   options: async () => {
     try {
-        // What would you like to do?
         const { action } = await inquirer.prompt({
           name: "action",
           type: "list",
@@ -45,7 +48,7 @@ const mainMenu = {
               "Employees by Manager",
               "All Departments",
               "All Roles",
-              "★★★ (NEW!) Budget by Department ★★★",
+              "Headcount and Budget by Department",
               new inquirer.Separator('UPDATE...'),
               "Update Employee Role",
               "Update Employee Manager",
@@ -60,53 +63,51 @@ const mainMenu = {
               "EXIT [X]"
           ]
       });
-
-      // Handle the various cases - do different functions
       switch(action) {
           case "All Employees":
-            Employees.allEmployees();
+            allEmployees();
             break;
           case "Employees by Department":
             employeesByDepartment();
             break;
           case "Employees by Manager":
-            Employees.employeesByManager();
+            employeesByManager();
             break;
           case "All Departments":
-            Departments.allDepartments();
+            allDepartments();
             break;
           case "All Roles":
-            Roles.allRoles();
+            allRoles();
             break;
-          case "★★★ (NEW!) Budget by Department ★★★":
-            Budget.allBudget();
+          case "Headcount and Budget by Department":
+            budgetByDepartment();
             break;
           case "Update Employee Role":
-              updateEmployeeRole();
-              break;
+            updateEmployeeRole();
+            break;
           case "Update Employee Manager":
-              updateEmployeeManager();
-              break;
+            updateEmployeeManager();
+            break;
           case "New Employee":
-              addEmployee();
-              break;
+            addEmployee();
+            break;
           case "New Department":
-              addDepartment();
-              break;
+            addDepartment();
+            break;
           case "New Role":
-              addRole();
-              break;
+            addRole();
+            break;
           case "Delete Employee":
-              removeEmployee();
-              break;
+            removeEmployee();
+            break;
           case "Delete Department":
-              removeDepartment();
-              break;
+            removeDepartment();
+            break;
           case "Delete Role":
-              removeRole();
-              break;
+            removeRole();
+            break;
           case "EXIT [X]":
-              exit();
+            exit();
       }
   }
   catch (error) {
@@ -115,177 +116,206 @@ const mainMenu = {
 }
 }
 
-// EMPLOYEES
-const Employees = {
+// FUNCTIONS FOR EACH CASE
 
-  // Get All Employees
-  allEmployees: async () => {
-    try {
-      const data = await queryAsync(
-        `
-        SELECT A.id, A.first_name, A.last_name, title, department_name AS department, salary, 
-        CONCAT(B.first_name, ' ', B.last_name) AS manager
-        FROM employees AS A 
-        LEFT JOIN employees AS B 
-        ON A.manager_id = B.id 
-        LEFT JOIN roles 
-        ON A.role_id = roles.id  
-        LEFT JOIN departments 
-        ON roles.department_id = departments.id 
-        ORDER BY A.id;
-        `
-      );
-      const table = cTable.getTable(data);
-      console.log("\nFull list of employees:\n\n" + table);
-      mainMenu.options();
-    }
-    catch (error) {
-      console.log("ERROR: " + error);
-    }
-  },
-
-  // Get Employees by Manager
-  employeesByManager: async () => {
-    try {
-      const data = await queryAsync(
-        `
-        SELECT A.id, A.first_name, A.last_name, title, department_name AS department, salary
-        FROM employees AS A 
-        LEFT JOIN roles 
-        ON A.role_id = roles.id  
-        LEFT JOIN departments 
-        ON roles.department_id = departments.id
-        WHERE manager_id = 3 
-        ORDER BY A.id;
-        `
-      );
-      const table = cTable.getTable(data);
-      console.log("\nManager's direct reports:\n\n" + table);
-      mainMenu.options();
-    }
-    catch (error) {
-      console.log("ERROR: " + error);
-    }
-  },
-
-  // Update Employee Role
-
-  // Update Employee Manager
-
-  // New Employee
-
-  // Delete Employee
-
-}
-
-async function employeesByDepartment() {
+// Get All Employees
+async function allEmployees() {
   try {
-      // Get Department Names and set them as choices
-      Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");      
-      // Present departments
-      const { department_name } = await inquirer.prompt(Questions.Departments.returnString());
-      // Get Employees on selected department
-      const employeesInDepartment = await departmentQueries.employeesInDepartment(department_name);
-      // Show employees
-      const employeesInDepartmentTable = cTable.getTable(employeesInDepartment);
-      console.log(`\nList of employees in the ${department_name} department:\n\n` + employeesInDepartmentTable);
-      // Go back to main Menu
-      mainMenu.options();
+    const employeesData = await employeeQueries.allEmployees();
+    const employeesTable = cTable.getTable(employeesData);
+    console.log("\nFull list of employees:\n\n" + employeesTable);
+    mainMenu.options();
   }
   catch (error) {
-      // Specify where the error occurred
-      console.log("ERROR - app.js - viewEmployeesByDepartment(): " + error);
+    console.log("Error in index.js allEmployees(): " + error);
   }
 }
 
-// DEPARTMENTS
-const Departments = {
-
-  // Get All Departments
-  allDepartments: async () => {
-    try {
-      const data = await queryAsync(
-        `
-        SELECT * FROM departments ORDER BY id;  
-        `
-      );
-      const table = cTable.getTable(data);
-      console.log("\nFull list of departments:\n\n" + table);
-      mainMenu.options();
-    }
-    catch (error) {
-      console.log("ERROR: " + error);
-    }
-  },
-
-  // New Department
-
-  // Delete Department
-
+// Get Employees by Department LOGIC IS ONLY EXPLAINED HERE!
+async function employeesByDepartment() {
+  try {
+    // Get Department Names and set them as choices
+    Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");      
+    // Present departments
+    const { department_name } = await inquirer.prompt(Questions.Departments.returnString());
+    // Get Employees on selected department
+    const employeesInDepartment = await employeeQueries.employeesInDepartment(department_name);
+    // Get employees
+    const employeesInDepartmentTable = cTable.getTable(employeesInDepartment);
+    // Show employees
+    console.log(`\nEmployees in the ${department_name} department:\n\n` + employeesInDepartmentTable);
+    // Go back to main Menu
+    mainMenu.options();
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js employeesByDepartment(): " + error);
+  }
 }
 
-// ROLES
-const Roles = {
-
-  // Get All Roles
-  allRoles: async () => {
-    try {
-      const data = await queryAsync(
-        `
-        SELECT A.id, title, salary, B.department_name AS department
-        FROM roles AS A
-        LEFT JOIN departments AS B
-        ON A.department_id = B.id 
-        ORDER BY A.id;   
-        `
-      );
-      const table = cTable.getTable(data);
-      console.log("\nFull list of Roles:\n\n" + table);
-      mainMenu.options();
-    }
-    catch (error) {
-      console.log("ERROR: " + error);
-    }
-  },
-
-  // New Role
-
-  // Delete Role
-
+// Get Employees by Manager
+async function employeesByManager() {
+  try {
+    Questions.Managers.choices = await employeeQueries.allManagers();
+    const { manager_name } = await inquirer.prompt(Questions.Managers.returnString());
+    const employeesUnderManager = await employeeQueries.employeesbyManager(manager_name);
+    const employeesUnderManagerTable = cTable.getTable(employeesUnderManager);
+    console.log(`\nDirect reports of ${manager_name}:\n\n` + employeesUnderManagerTable);
+    mainMenu.options();
+  }
+  catch (error) {
+    console.log("Error in index.js employeesByManager(): " + error);
+  }
 }
 
-// BUDGET
-const Budget = {
-
-  // Get All Roles
-  allBudget: async () => {
-    try {
-      const data = await queryAsync(
-        `
-        SELECT department_name AS department, COUNT(*) AS employees, SUM(salary) AS total_salaries
-        FROM employees AS A
-        LEFT JOIN roles 
-        ON A.role_id = roles.id
-        LEFT JOIN departments
-        ON roles.department_id = departments.id
-        GROUP BY department_name
-        ORDER BY total_salaries DESC;    
-        `
-      );
-      const table = cTable.getTable(data);
-      console.log("\nHeadcount and Budget by Department\n\n" + table);
-      mainMenu.options();
-    }
-    catch (error) {
-      console.log("ERROR: " + error);
-    }
-  },
+// Get All Departments
+async function allDepartments() {
+  try {
+    const departments = await departmentQueries.allDepartments();
+    const departmentsTable = cTable.getTable(departments);
+    console.log(`\nList of all departments:\n\n` + departmentsTable);
+    mainMenu.options();
+  }
+  catch (error) {
+    console.log("Error in index.js allDepartments(): " + error);
+  }
 }
 
-// Displays exit message and ends database connection 
+// Get All Roles
+async function allRoles() {
+  try {
+    const roles = await roleQueries.allRoles();
+    const rolesTable = cTable.getTable(roles);
+    console.log(`\nList of all roles:\n\n` + rolesTable);
+    mainMenu.options();
+  }
+  catch (error) {
+    console.log("Error in index.js allRoles(): " + error);
+  }
+}
+
+// Headcount and Budget by Department
+async function budgetByDepartment() {
+  try {
+    const budget = await budgetQueries.budgetByDepartment();
+    const budgetTable = cTable.getTable(budget);
+    console.log(`\nHeadcount and budget by Department:\n\n` + budgetTable);
+    mainMenu.options();
+  }
+  catch (error) {
+    console.log("Error in index.js budgetByDepartment(): " + error);
+  }
+}
+
+// Update Employee Role
+async function updateEmployeeRole() {
+  try {
+    Questions.EmployeeNewRole1.choices = await employeeQueries.employeeList();            
+    Questions.EmployeeNewRole2.choices = await globalQueries.selectTableCol("title", "roles");
+    const { employee } = await inquirer.prompt(Questions.EmployeeNewRole1.returnString());
+    const { role } = await inquirer.prompt(Questions.EmployeeNewRole2.returnString());
+    const employeeId = await employeeQueries.employeeId(employee);
+    const roleId = await roleQueries.roleById(role);
+    const updateEmployee = await globalQueries.updateRecord("employees", "role_id", roleId, "id", employeeId);
+    console.log(`\nRole of ${employee} successfully updated to ${role}.\nVerify update below:`);
+    allEmployees();
+  }
+  catch (error) {
+    console.log("Error in index.js updateEmployeeRole(): " + error);
+  }
+}
+
+// Update Employee Manager
+async function updateEmployeeManager() {
+  try {
+    Questions.EmployeeNewManager1.choices = await employeeQueries.employeeList();
+    Questions.EmployeeNewManager2.choices = Questions.EmployeeNewManager1.choices;
+    const { employee } = await inquirer.prompt(Questions.EmployeeNewManager1.returnString());
+    const { manager } = await inquirer.prompt(Questions.EmployeeNewManager2.returnString());
+    const employeeId = await employeeQueries.employeeId(employee);
+    const managerId = await employeeQueries.employeeId(manager);
+    const updateEmployee = await globalQueries.updateRecord("employees", "manager_id", managerId, "id", employeeId);
+    console.log(`\n${employee}'s manager was successfully updated to ${manager}\nVerify update below:`);
+    allEmployees();
+  }
+  catch (error) {
+    console.log("Error in index.js updateEmployeeManager(): " + error);
+  }
+}
+
+// New Employee
+async function addEmployee() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js addEmployee(): " + error);
+  }
+}
+
+// Delete Employee
+async function removeEmployee() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js removeEmployee(): " + error);
+  }
+}
+
+
+
+// New Department
+async function addDepartment() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js addDepartment(): " + error);
+  }
+}
+
+// Delete Department
+async function removeDepartment() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js removeDepartment(): " + error);
+  }
+}
+
+
+
+// New Role
+async function addRole() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js addRole(): " + error);
+  }
+}
+
+// Delete Role
+async function removeRole() {
+  try {
+
+  }
+  catch (error) {
+    // Specify where the error occurred
+    console.log("Error in index.js removeRole(): " + error);
+  }
+}
+
 function exit() {
   db.end();
-  console.log("Connection closed. Good bye!\n\n");
+  console.log("\n\nConnection closed. Good bye!\n\n");
 }
 
 start();
