@@ -3,7 +3,7 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 const mysql = require('mysql2');
 const util = require("util");
-const { table, log } = require("console");
+//const { table, log } = require("console");
 
 // Files
 const questions = require("./lib/questions");
@@ -52,6 +52,7 @@ const mainMenu = {
               new inquirer.Separator('UPDATE...'),
               "Update Employee Role",
               "Update Employee Manager",
+              "Update Role Department",
               new inquirer.Separator('ADD NEW...'),
               "New Employee",
               "New Department",
@@ -87,6 +88,9 @@ const mainMenu = {
             break;
           case "Update Employee Manager":
             updateEmployeeManager();
+            break;
+          case "Update Role Department":
+            updateRoleDepartment();
             break;
           case "New Employee":
             addEmployee();
@@ -142,10 +146,17 @@ async function employeesByDepartment() {
     const employeesInDepartment = await employeeQueries.employeesInDepartment(department_name);
     // Get employees
     const employeesInDepartmentTable = cTable.getTable(employeesInDepartment);
+    // If array is empty, say it
+    if (employeesInDepartment=="") {
+      console.log(`No one works in ${department_name} \n\n`);
+      mainMenu.options();
+    }
+    else {
     // Show employees
     console.log(`\nEmployees in the ${department_name} department:\n\n` + employeesInDepartmentTable);
     // Go back to main Menu
     mainMenu.options();
+    }
   }
   catch (error) {
     // Specify where the error occurred
@@ -243,72 +254,147 @@ async function updateEmployeeManager() {
   }
 }
 
+// Update Role Department
+async function updateRoleDepartment() {
+  try {
+    Questions.RoleNewDepartment.choices = await globalQueries.selectTableCol("title", "roles");            
+    Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");
+    const { role } = await inquirer.prompt(Questions.RoleNewDepartment.returnString());
+    const { department_name } = await inquirer.prompt(Questions.Departments.returnString());
+    const roleId = await roleQueries.roleById(role);
+    const departmentId = await departmentQueries.departmentId(department_name);                    
+    const updateRole = await globalQueries.updateRecord("roles", "department_id", departmentId, "id", roleId);
+    console.log(`\nRole ${role} successfully moved to ${department_name}.\nVerify update below:`);
+    allRoles();
+  }
+  catch (error) {
+    console.log("Error in index.js updateRoleDepartment(): " + error);
+  }
+}
+
 // New Employee
 async function addEmployee() {
   try {
-
+    Questions.NewEmployeeRole.choices = await globalQueries.selectTableCol("title", "roles");
+    Questions.NewEmployeeManager.choices = await employeeQueries.employeeList();
+    Questions.NewEmployeeManager.choices.push("No manager"); //Adding a 'no manager' option
+    const newEmployee = await inquirer.prompt([Questions.NewEmployeeFirst.returnString(), Questions.NewEmployeeLast.returnString(), Questions.NewEmployeeRole.returnString(), Questions.NewEmployeeManager.returnString()]);
+    newEmployee.roleId = await roleQueries.roleById(newEmployee.role);
+    if (newEmployee.manager === "No manager") {
+        newEmployee.managerId = null;
+    }
+    else {
+        newEmployee.managerId = await employeeQueries.employeeId(newEmployee.manager);
+    }
+    const colValues = {
+        first_name: newEmployee.first_name,
+        last_name: newEmployee.last_name,
+        role_id: newEmployee.roleId,
+        manager_id: newEmployee.managerId
+    };
+    const addEmployee = await globalQueries.insertRecord("employees", colValues);
+    console.log(`\n${newEmployee.first_name} ${newEmployee.last_name} has been added. \nVerify update below:`);
+    allEmployees();
   }
   catch (error) {
-    // Specify where the error occurred
     console.log("Error in index.js addEmployee(): " + error);
+  }
+}
+
+// New Department
+async function addDepartment() {
+  try {
+    const { department_name } = await inquirer.prompt(Questions.NewDepartment.returnString());                    
+    const colValues = {department_name:department_name};  
+    const addDepartment = await globalQueries.insertRecord("departments", colValues);
+    console.log(`\nThe new ${department_name} department was successfully added\nVerify update below:`);
+    allDepartments();
+  }
+  catch (error) {
+    console.log("Error in index.js addDepartment(): " + error);
+  }
+}
+
+// New Role
+async function addRole() {
+  try {
+    Questions.NewRoleDepartment.choices = await globalQueries.selectTableCol("department_name", "departments");
+    const newRole = await inquirer.prompt([Questions.NewRoleTitle.returnString(), Questions.NewRoleSalary.returnString(), Questions.NewRoleDepartment.returnString()]);
+    newRole.departmentId = await departmentQueries.departmentId(newRole.department);            
+    const colValues = {
+        title: newRole.title,
+        salary: newRole.salary,
+        department_id: newRole.departmentId
+    };    
+    const addRole = await globalQueries.insertRecord("roles", colValues);
+    console.log(`\nThe new role ${newRole.title} was successfully added\nVerify update below:`);
+    allRoles();
+  }
+  catch (error) {
+    console.log("Error in index.js addRole(): " + error);
   }
 }
 
 // Delete Employee
 async function removeEmployee() {
   try {
-
+    // Query the database for employees. Use employees as question choices
+    Questions.DeleteEmployee.choices = await employeeQueries.employeeList();
+    const { employee } = await inquirer.prompt(Questions.DeleteEmployee.returnString());
+    const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
+    if (confirmYN === "Yes") {
+        const employeeId = await employeeQueries.employeeId(employee);
+        const deleteEmployee = await globalQueries.deleteRecord("employees", "id", employeeId);
+        console.log(`\n${employee} has been deleted.\nVerify update below:`);
+        allEmployees();
+    }
+    else {
+      mainMenu.options();
+    }
   }
   catch (error) {
-    // Specify where the error occurred
     console.log("Error in index.js removeEmployee(): " + error);
-  }
-}
-
-
-
-// New Department
-async function addDepartment() {
-  try {
-
-  }
-  catch (error) {
-    // Specify where the error occurred
-    console.log("Error in index.js addDepartment(): " + error);
   }
 }
 
 // Delete Department
 async function removeDepartment() {
   try {
-
+    Questions.DeleteDepartment.choices = await globalQueries.selectTableCol("department_name", "departments");
+    const { department } = await inquirer.prompt(Questions.DeleteDepartment.returnString());    
+    const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
+    if (confirmYN === "Yes") {
+        const departmentId = await departmentQueries.departmentId(department);                    
+        const deleteDepartment = await globalQueries.deleteRecord("departments", "id", departmentId);
+        console.log(`\nDepartment ${department} has been deleted.\nVerify update below:`);
+        allDepartments();
+    }    
+    else {
+        mainMenu.options();
+    }
   }
   catch (error) {
-    // Specify where the error occurred
     console.log("Error in index.js removeDepartment(): " + error);
-  }
-}
-
-
-
-// New Role
-async function addRole() {
-  try {
-
-  }
-  catch (error) {
-    // Specify where the error occurred
-    console.log("Error in index.js addRole(): " + error);
   }
 }
 
 // Delete Role
 async function removeRole() {
   try {
-
+    Questions.DeleteRole.choices = await globalQueries.selectTableCol("title", "roles");
+    const { role } = await inquirer.prompt(Questions.DeleteRole.returnString());
+    const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
+    if (confirmYN === "Yes") {
+        const roleId = await roleQueries.roleById(role);                    
+        const deleteRole = await globalQueries.deleteRecord("roles", "id", roleId);            
+        console.log(`\nRole ${role} has been deleted.\nVerify update below:`);
+        allRoles();
+    }    
+    else {
+        mainMenu.options();
+    }
   }
   catch (error) {
-    // Specify where the error occurred
     console.log("Error in index.js removeRole(): " + error);
   }
 }
