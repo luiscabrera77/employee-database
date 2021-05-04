@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/luiscabrera77/employee-database#readme",
   "dependencies": {
+    "ascii-art": "^2.7.0",
+    "ascii-art-table": "^1.0.1",
     "console.table": "^0.10.0",
     "express": "^4.17.1",
     "inquirer": "^8.0.0",
