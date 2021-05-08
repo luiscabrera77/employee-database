@@ -7,6 +7,8 @@ A command-line application to manage a company's employee database, using Node.j
 
 ![Screenshot](https://user-images.githubusercontent.com/54341829/117550910-8145e300-b008-11eb-91ab-aa8bb49b2aed.png)
 
+Watch a walkthrough video here: https://drive.google.com/file/d/1RJ9bzqmK-xoJ-n6Ih2Wt8odakMPFIpz0/view
+
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
