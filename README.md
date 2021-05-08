@@ -22,27 +22,26 @@ Install the following packages: npm init —y, npm install express mysql2 inquir
 Simply run "node index". You will be presented with the following options:
 
 VIEW
-- 1 All Employees
-- 2 Employees by Department
-- 3 Employees by Manager
-- 4 All Departments
-- 5 All Roles
-- 6 Budget by Department
+- All Employees
+- Employees by Department
+- Employees by Manager
+- All Departments
+- All Roles
+- Budget by Department
 
 UPDATE…
-- 7 Employee Role
-- 8 Employee Manager
+- Employee Role
+- Employee Manager
 
 ADD A NEW…
-- 9 Employee
-- 10 Department
-- 11 Role
+- Employee
+- Department
+- Role
 
 DELETE…
-- 12 Employee
-- 13 Department
-- 14 Role
-
+- Employee
+- Department
+- Role
 
 ## License
 
