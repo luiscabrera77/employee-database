@@ -26,98 +26,98 @@ const queryAsync = util.promisify(db.query).bind(db);
 
 // Create the initial connection and start the app
 function start() {
-    db.connect(function(err) {
-        if (err) console.error(err);
-        console.log("                       _                       \n   ___ _ __ ___  _ __ | | ___  _   _  ___  ___ \n  / _ \\ '_ ` _ \\| '_ \\| |/ _ \\| | | |/ _ \\/ _ \\\n |  __/ | | | | | |_) | | (_) | |_| |  __/  __/\n  \\___|_| |_| |_| .__/|_|\\___/ \\__, |\\___|\\___|\n                |_|            |___/           \n  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __ \n | '_ ` _ \\ / _` | '_ \\ / _` |/ _` |/ _ \\ '__|\n | | | | | | (_| | | | | (_| | (_| |  __/ |   \n |_| |_| |_|\\__,_|_| |_|\\__,_|\\__, |\\___|_|   \n                              |___/           \n");
-        mainMenu.options();
-    })
+  db.connect(function (err) {
+    if (err) console.error(err);
+    console.log("                       _                       \n   ___ _ __ ___  _ __ | | ___  _   _  ___  ___ \n  / _ \\ '_ ` _ \\| '_ \\| |/ _ \\| | | |/ _ \\/ _ \\\n |  __/ | | | | | |_) | | (_) | |_| |  __/  __/\n  \\___|_| |_| |_| .__/|_|\\___/ \\__, |\\___|\\___|\n                |_|            |___/           \n  _ __ ___   __ _ _ __   __ _  __ _  ___ _ __ \n | '_ ` _ \\ / _` | '_ \\ / _` |/ _` |/ _ \\ '__|\n | | | | | | (_| | | | | (_| | (_| |  __/ |   \n |_| |_| |_|\\__,_|_| |_|\\__,_|\\__, |\\___|_|   \n                              |___/           \n");
+    mainMenu.options();
+  })
 }
 
 // Main Menu of the app (First question left outside of constructor classes to insert Separators)
 const mainMenu = {
   options: async () => {
     try {
-        const { action } = await inquirer.prompt({
-          name: "action",
-          type: "list",
-          message: "What would you like to do?",
-          choices: [
-              new inquirer.Separator('VIEW...'),
-              "All Employees",
-              "Employees by Department",
-              "Employees by Manager",
-              "All Departments",
-              "All Roles",
-              "Headcount and Budget by Department",
-              new inquirer.Separator('UPDATE...'),
-              "Update Employee Role",
-              "Update Employee Manager",
-              "Update Role Department",
-              new inquirer.Separator('ADD NEW...'),
-              "New Employee",
-              "New Department",
-              "New Role",
-              new inquirer.Separator('DELETE...'),
-              "Delete Employee",
-              "Delete Department",
-              "Delete Role",
-              "EXIT [X]"
-          ]
+      const { action } = await inquirer.prompt({
+        name: "action",
+        type: "list",
+        message: "What would you like to do?",
+        choices: [
+          new inquirer.Separator('VIEW...'),
+          "All Employees",
+          "Employees by Department",
+          "Employees by Manager",
+          "All Departments",
+          "All Roles",
+          "Headcount and Budget by Department",
+          new inquirer.Separator('UPDATE...'),
+          "Update Employee Role",
+          "Update Employee Manager",
+          "Update Role Department",
+          new inquirer.Separator('ADD NEW...'),
+          "New Employee",
+          "New Department",
+          "New Role",
+          new inquirer.Separator('DELETE...'),
+          "Delete Employee",
+          "Delete Department",
+          "Delete Role",
+          "EXIT [X]"
+        ]
       });
-      switch(action) {
-          case "All Employees":
-            allEmployees();
-            break;
-          case "Employees by Department":
-            employeesByDepartment();
-            break;
-          case "Employees by Manager":
-            employeesByManager();
-            break;
-          case "All Departments":
-            allDepartments();
-            break;
-          case "All Roles":
-            allRoles();
-            break;
-          case "Headcount and Budget by Department":
-            budgetByDepartment();
-            break;
-          case "Update Employee Role":
-            updateEmployeeRole();
-            break;
-          case "Update Employee Manager":
-            updateEmployeeManager();
-            break;
-          case "Update Role Department":
-            updateRoleDepartment();
-            break;
-          case "New Employee":
-            addEmployee();
-            break;
-          case "New Department":
-            addDepartment();
-            break;
-          case "New Role":
-            addRole();
-            break;
-          case "Delete Employee":
-            removeEmployee();
-            break;
-          case "Delete Department":
-            removeDepartment();
-            break;
-          case "Delete Role":
-            removeRole();
-            break;
-          case "EXIT [X]":
-            exit();
+      switch (action) {
+        case "All Employees":
+          allEmployees();
+          break;
+        case "Employees by Department":
+          employeesByDepartment();
+          break;
+        case "Employees by Manager":
+          employeesByManager();
+          break;
+        case "All Departments":
+          allDepartments();
+          break;
+        case "All Roles":
+          allRoles();
+          break;
+        case "Headcount and Budget by Department":
+          budgetByDepartment();
+          break;
+        case "Update Employee Role":
+          updateEmployeeRole();
+          break;
+        case "Update Employee Manager":
+          updateEmployeeManager();
+          break;
+        case "Update Role Department":
+          updateRoleDepartment();
+          break;
+        case "New Employee":
+          addEmployee();
+          break;
+        case "New Department":
+          addDepartment();
+          break;
+        case "New Role":
+          addRole();
+          break;
+        case "Delete Employee":
+          removeEmployee();
+          break;
+        case "Delete Department":
+          removeDepartment();
+          break;
+        case "Delete Role":
+          removeRole();
+          break;
+        case "EXIT [X]":
+          exit();
       }
-  }
-  catch (error) {
+    }
+    catch (error) {
       console.log("Something is wrong: " + error);
+    }
   }
-}
 }
 
 // FUNCTIONS FOR EACH CASE
@@ -139,7 +139,7 @@ async function allEmployees() {
 async function employeesByDepartment() {
   try {
     // Get Department Names and set them as choices
-    Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");      
+    Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");
     // Present departments
     const { department_name } = await inquirer.prompt(Questions.Departments.returnString());
     // Get Employees on selected department
@@ -147,15 +147,15 @@ async function employeesByDepartment() {
     // Get employees
     const employeesInDepartmentTable = cTable.getTable(employeesInDepartment);
     // If array is empty, say it
-    if (employeesInDepartment=="") {
+    if (employeesInDepartment == "") {
       console.log(`No one works in ${department_name} \n\n`);
       mainMenu.options();
     }
     else {
-    // Show employees
-    console.log(`\nEmployees in the ${department_name} department:\n\n` + employeesInDepartmentTable);
-    // Go back to main Menu
-    mainMenu.options();
+      // Show employees
+      console.log(`\nEmployees in the ${department_name} department:\n\n` + employeesInDepartmentTable);
+      // Go back to main Menu
+      mainMenu.options();
     }
   }
   catch (error) {
@@ -221,7 +221,7 @@ async function budgetByDepartment() {
 // Update Employee Role
 async function updateEmployeeRole() {
   try {
-    Questions.EmployeeNewRole1.choices = await employeeQueries.employeeList();            
+    Questions.EmployeeNewRole1.choices = await employeeQueries.employeeList();
     Questions.EmployeeNewRole2.choices = await globalQueries.selectTableCol("title", "roles");
     const { employee } = await inquirer.prompt(Questions.EmployeeNewRole1.returnString());
     const { role } = await inquirer.prompt(Questions.EmployeeNewRole2.returnString());
@@ -257,12 +257,12 @@ async function updateEmployeeManager() {
 // Update Role Department
 async function updateRoleDepartment() {
   try {
-    Questions.RoleNewDepartment.choices = await globalQueries.selectTableCol("title", "roles");            
+    Questions.RoleNewDepartment.choices = await globalQueries.selectTableCol("title", "roles");
     Questions.Departments.choices = await globalQueries.selectTableCol("department_name", "departments");
     const { role } = await inquirer.prompt(Questions.RoleNewDepartment.returnString());
     const { department_name } = await inquirer.prompt(Questions.Departments.returnString());
     const roleId = await roleQueries.roleById(role);
-    const departmentId = await departmentQueries.departmentId(department_name);                    
+    const departmentId = await departmentQueries.departmentId(department_name);
     const updateRole = await globalQueries.updateRecord("roles", "department_id", departmentId, "id", roleId);
     console.log(`\nRole ${role} successfully moved to ${department_name}.\nVerify update below:`);
     allRoles();
@@ -281,16 +281,16 @@ async function addEmployee() {
     const newEmployee = await inquirer.prompt([Questions.NewEmployeeFirst.returnString(), Questions.NewEmployeeLast.returnString(), Questions.NewEmployeeRole.returnString(), Questions.NewEmployeeManager.returnString()]);
     newEmployee.roleId = await roleQueries.roleById(newEmployee.role);
     if (newEmployee.manager === "No manager") {
-        newEmployee.managerId = null;
+      newEmployee.managerId = null;
     }
     else {
-        newEmployee.managerId = await employeeQueries.employeeId(newEmployee.manager);
+      newEmployee.managerId = await employeeQueries.employeeId(newEmployee.manager);
     }
     const colValues = {
-        first_name: newEmployee.first_name,
-        last_name: newEmployee.last_name,
-        role_id: newEmployee.roleId,
-        manager_id: newEmployee.managerId
+      first_name: newEmployee.first_name,
+      last_name: newEmployee.last_name,
+      role_id: newEmployee.roleId,
+      manager_id: newEmployee.managerId
     };
     const addEmployee = await globalQueries.insertRecord("employees", colValues);
     console.log(`\n${newEmployee.first_name} ${newEmployee.last_name} has been added. \nVerify update below:`);
@@ -304,8 +304,8 @@ async function addEmployee() {
 // New Department
 async function addDepartment() {
   try {
-    const { department_name } = await inquirer.prompt(Questions.NewDepartment.returnString());                    
-    const colValues = {department_name:department_name};  
+    const { department_name } = await inquirer.prompt(Questions.NewDepartment.returnString());
+    const colValues = { department_name: department_name };
     const addDepartment = await globalQueries.insertRecord("departments", colValues);
     console.log(`\nThe new ${department_name} department was successfully added\nVerify update below:`);
     allDepartments();
@@ -320,12 +320,12 @@ async function addRole() {
   try {
     Questions.NewRoleDepartment.choices = await globalQueries.selectTableCol("department_name", "departments");
     const newRole = await inquirer.prompt([Questions.NewRoleTitle.returnString(), Questions.NewRoleSalary.returnString(), Questions.NewRoleDepartment.returnString()]);
-    newRole.departmentId = await departmentQueries.departmentId(newRole.department);            
+    newRole.departmentId = await departmentQueries.departmentId(newRole.department);
     const colValues = {
-        title: newRole.title,
-        salary: newRole.salary,
-        department_id: newRole.departmentId
-    };    
+      title: newRole.title,
+      salary: newRole.salary,
+      department_id: newRole.departmentId
+    };
     const addRole = await globalQueries.insertRecord("roles", colValues);
     console.log(`\nThe new role ${newRole.title} was successfully added\nVerify update below:`);
     allRoles();
@@ -343,10 +343,10 @@ async function removeEmployee() {
     const { employee } = await inquirer.prompt(Questions.DeleteEmployee.returnString());
     const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
     if (confirmYN === "Yes") {
-        const employeeId = await employeeQueries.employeeId(employee);
-        const deleteEmployee = await globalQueries.deleteRecord("employees", "id", employeeId);
-        console.log(`\n${employee} has been deleted.\nVerify update below:`);
-        allEmployees();
+      const employeeId = await employeeQueries.employeeId(employee);
+      const deleteEmployee = await globalQueries.deleteRecord("employees", "id", employeeId);
+      console.log(`\n${employee} has been deleted.\nVerify update below:`);
+      allEmployees();
     }
     else {
       mainMenu.options();
@@ -361,16 +361,16 @@ async function removeEmployee() {
 async function removeDepartment() {
   try {
     Questions.DeleteDepartment.choices = await globalQueries.selectTableCol("department_name", "departments");
-    const { department } = await inquirer.prompt(Questions.DeleteDepartment.returnString());    
+    const { department } = await inquirer.prompt(Questions.DeleteDepartment.returnString());
     const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
     if (confirmYN === "Yes") {
-        const departmentId = await departmentQueries.departmentId(department);                    
-        const deleteDepartment = await globalQueries.deleteRecord("departments", "id", departmentId);
-        console.log(`\nDepartment ${department} has been deleted.\nVerify update below:`);
-        allDepartments();
-    }    
+      const departmentId = await departmentQueries.departmentId(department);
+      const deleteDepartment = await globalQueries.deleteRecord("departments", "id", departmentId);
+      console.log(`\nDepartment ${department} has been deleted.\nVerify update below:`);
+      allDepartments();
+    }
     else {
-        mainMenu.options();
+      mainMenu.options();
     }
   }
   catch (error) {
@@ -385,13 +385,13 @@ async function removeRole() {
     const { role } = await inquirer.prompt(Questions.DeleteRole.returnString());
     const { confirmYN } = await inquirer.prompt(Questions.DeleteConfirm.returnString());
     if (confirmYN === "Yes") {
-        const roleId = await roleQueries.roleById(role);                    
-        const deleteRole = await globalQueries.deleteRecord("roles", "id", roleId);            
-        console.log(`\nRole ${role} has been deleted.\nVerify update below:`);
-        allRoles();
-    }    
+      const roleId = await roleQueries.roleById(role);
+      const deleteRole = await globalQueries.deleteRecord("roles", "id", roleId);
+      console.log(`\nRole ${role} has been deleted.\nVerify update below:`);
+      allRoles();
+    }
     else {
-        mainMenu.options();
+      mainMenu.options();
     }
   }
   catch (error) {

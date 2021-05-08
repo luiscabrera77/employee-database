@@ -1,5 +1,3 @@
-
-
 # Employee Manager
 
 ## Description
@@ -7,7 +5,7 @@
 
 A command-line application to manage a company's employee database, using Node.js, Inquirer, and MySQL. Allows user to view and manage the departments, roles, and employees in a company.
 
-![Screenshot](copy here URL of your app screenshot)
+![Screenshot](https://user-images.githubusercontent.com/54341829/117550910-8145e300-b008-11eb-91ab-aa8bb49b2aed.png)
 
 ## Table of Contents
 - [Installation](#installation)
@@ -69,14 +67,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
 
-
-## Contributing
-If you would like to contribute to this project:
-
-**ES6 is welcomed!**
-
 ## Tests
 Used jest for testing, simply run "npm test" 
+
+## Roadmap
+An express API is being built, some queries must be updated.
 
 ## Questions
 Find me on Github as: [luiscabrera77](https://github.com/luiscabrera77)
